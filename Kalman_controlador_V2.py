@@ -265,6 +265,10 @@ DFEM_SIN_C = lambda x: DFEM_sin(x - df + pi/3.0)
 for k in tqdm(range(0,N-1),ascii=True, desc='Simulação'):
     t[k] = k*Ts
     
+    if t[k] == 0.7:
+        Tl=3
+    
+    
     Ax     = np.array([[ 1,                             1,                            1,                          FEM_SIN_A(thetae_kal),            1],
                         [1,                             1,                            1,                          FEM_SIN_B(thetae_kal),            1],
                         [1,                             1,                            1,                          FEM_SIN_C(thetae_kal),            1],
@@ -433,7 +437,7 @@ for k in tqdm(range(0,N-1),ascii=True, desc='Simulação'):
     
     #TE_kal = Pp*Ke*(ia*FEM_SIN_A(theta0_kal_est) + ib*FEM_SIN_B(theta0_kal_est) + ic*FEM_SIN_C(theta0_kal_est))
     #Tl_kal = TE_kal -x_pos[3,k-1]*(BV+J) - J*x_pos[3,k]
-    Tl_kal = Tl
+    Tl_kal = 0
     
     V_kal  = (inversor@V_kal) + np.multiply(backe[:,k],1/3)
     x_pri[:,k+1]  = Ad_kal@x_pri[:,k]+(Bd_kal@[V_kal[0],V_kal[1],V_kal[2],0.02*x_pos[3,k]+Tl_kal])
@@ -446,7 +450,8 @@ for k in tqdm(range(0,N-1),ascii=True, desc='Simulação'):
     x_pos[:,k+1]  = x_pri[:,k+1] + (K_kal@y_kal)
     P_pos         = (I5 -(K_kal)@(C_kal))@(P_pri)
     
-    theta_kal_est = theta0_kal_est + Pp*x_pos[3,k+1]*Ts
+    # theta_kal_est = theta0_kal_est + Pp*x_pos[3,k+1]*Ts
+    theta_kal_est = x_pos[4,k+1]
     theta0_kal_est = theta_kal_est%(Pp*2*pi)
     angulo_kal_est[k] = (theta_kal_est/Pp)%(2*pi)
     thetae_kal_est = theta0_kal_est
@@ -459,33 +464,295 @@ t[N-1] = Ts*N
 angulo_kal_2[k] = angulo_kal[kc]
 angulo_kal_est[k] = angulo_kal_est[k-1]
 
+
+#Criação das figuras 
+
+# Primeira figura se concentra na etapa de alinhamento do motor.
 f1 = plt.figure(1)
-plt.plot(tc[0:N*P-P],angulo_kal[0:N*P-P])
-plt.plot(t[0:N-1],angulo_kal_est[0:N-1],'--')
+f1.set_size_inches(11, 8)
+plt.subplot(411)
+plt.plot(tc[0:alin*P+P],angulo_kal[0:alin*P+P])
+plt.plot(t[0:alin],angulo_kal_est[0:alin],'--')
 plt.grid(True)
-#mplcyberpunk.add_glow_effects()
+plt.title('Angulo')
+plt.xticks([])
 plt.legend(['Real','Estimado'])
-plt.savefig('resultados/angulo.pdf')
+plt.ylabel("Angulo (rad)")
 
-f2 = plt.figure(2)
-plt.plot(t[0:N-1],ym_vel[0:N-1],'--')
-plt.plot(t[0:N-1],x_pos[3,0:N-1],'--')
-plt.plot(t[0:N-1],r[0:N-1],'--')
+plt.subplot(412)
+plt.plot(tc[0:alin*P+P],x[3,0:alin*P+P])
+plt.plot(t[0:alin],x_pos[3,0:alin],'--')
 plt.grid(True)
-plt.legend(['Real','Estimado','Ref'])
-#mplcyberpunk.add_glow_effects()
-plt.savefig('resultados/velocidade.pdf')
+plt.title('Velocidade')
+plt.xticks([])
+plt.legend(['Real','Estimado'])
+plt.ylabel("Velocidade (rad/s)")
 
+plt.subplot(413)
+plt.plot(tc[0:alin*P+P],x[0,0:alin*P+P])
+plt.plot(tc[0:alin*P+P],x[1,0:alin*P+P])
+plt.plot(tc[0:alin*P+P],x[2,0:alin*P+P])
+plt.grid(True)
+plt.xticks([])
+plt.title('Correntes')
+plt.ylabel("Corrente (A)")
+plt.legend(['A','B','C'])
+
+plt.subplot(414)
+plt.plot(t[0:alin],x_pos[3,0:alin] - ym_vel[0:alin])
+plt.grid(True)
+plt.title('Erro Velocidade')
+plt.ylabel("Erro (rad/s)")
+plt.xlabel('Tempo(s)')
+
+plt.savefig('Resultados/kalman_fig_1.pdf')
+##########################################################################
+#sera a etapa de rampa
+f2=plt.figure(2)
+f2.set_size_inches(11, 8)
+plt.subplot(411)
+plt.plot(tc[alin*P+P:(ciclos+alin)*P+P],angulo_kal[alin*P+P:(ciclos+alin)*P+P])
+plt.step(t[alin:ciclos+alin],angulo_kal_est[alin:ciclos+alin],'--')
+plt.grid(True)
+plt.title('Angulo')
+plt.xticks([])
+plt.ylabel("Angulo (rad)")
+plt.legend(['Real','Estimado'])
+
+plt.subplot(412)
+plt.plot(tc[alin*P+P:(ciclos+alin)*P+P],x[3,alin*P+P:(ciclos+alin)*P+P])
+plt.step(t[alin:ciclos+alin],x_pos[3,alin:ciclos+alin],'--')
+plt.grid(True)
+plt.title('Velocidade')
+plt.ylabel("Velocidade (rad/s)")
+plt.xticks([])
+plt.legend(['Real','Estimado'])
+
+plt.subplot(413)
+plt.plot(tc[alin*P+P:(ciclos+alin)*P+P],x[0,alin*P+P:(ciclos+alin)*P+P])
+plt.plot(tc[alin*P+P:(ciclos+alin)*P+P],x[1,alin*P+P:(ciclos+alin)*P+P])
+plt.plot(tc[alin*P+P:(ciclos+alin)*P+P],x[2,alin*P+P:(ciclos+alin)*P+P])
+plt.grid(True)
+plt.xticks([])
+plt.title('Correntes')
+plt.ylabel("Corrente (A)")
+plt.legend(['A','B','C'])
+
+plt.subplot(414)
+plt.step(t[alin:ciclos+alin],x_pos[3,alin:ciclos+alin] - ym_vel[alin:ciclos+alin])
+plt.grid(True)
+plt.title('Erro Velocidade')
+plt.ylabel("Erro (rad/s)")
+plt.xlabel('Tempo(s)')
+
+plt.savefig('Resultados/kalman_fig_2.pdf')
+##########################################################################
 f3 = plt.figure(3)
-plt.plot(t[0:N-1],x_pos[3,0:N-1] - ym_vel[0:N-1])
+f3.set_size_inches(11, 8)
+plt.subplot(411)
+plt.plot(tc[(ciclos+alin)*P+P:(N2-ciclos)*P+P],angulo_kal[(ciclos+alin)*P+P:(N2-ciclos)*P+P])
+plt.step(t[ciclos+alin:N2-ciclos],angulo_kal_est[ciclos+alin:N2-ciclos],'--')
 plt.grid(True)
-#mplcyberpunk.add_glow_effects()
-plt.savefig('resultados/erro_vel.pdf')
+plt.title('Angulo')
+plt.xticks([])
+plt.ylabel("Angulo (rad)")
+plt.legend(['Real','Estimado'])
 
-f4 = plt.figure(4)
-plt.plot(t,((angulo_kal_2-angulo_kal_est)%(2*pi)))
+plt.subplot(412)
+plt.plot(tc[(ciclos+alin)*P+P:(N2-ciclos)*P+P],x[3,(ciclos+alin)*P+P:(N2-ciclos)*P+P])
+plt.step(t[ciclos+alin:N2-ciclos],x_pos[3,ciclos+alin:N2-ciclos],'--')
 plt.grid(True)
-plt.savefig('resultados/erro_pos.pdf')
+plt.title('Velocidade')
+plt.ylabel("Velocidade (rad/s)")
+plt.xticks([])
+plt.legend(['Real','Estimado'])
 
+plt.subplot(413)
+plt.plot(tc[(ciclos+alin)*P+P:(N2-ciclos)*P+P],x[0,(ciclos+alin)*P+P:(N2-ciclos)*P+P])
+plt.plot(tc[(ciclos+alin)*P+P:(N2-ciclos)*P+P],x[1,(ciclos+alin)*P+P:(N2-ciclos)*P+P])
+plt.plot(tc[(ciclos+alin)*P+P:(N2-ciclos)*P+P],x[2,(ciclos+alin)*P+P:(N2-ciclos)*P+P])
+plt.xticks([])
+plt.grid(True)
+plt.title('Correntes')
+plt.ylabel("Corrente (A)")
+plt.legend(['A','B','C'])
+
+plt.subplot(414)
+plt.step(t[ciclos+alin:N2-ciclos],x_pos[3,ciclos+alin:N2-ciclos] - ym_vel[ciclos+alin:N2-ciclos])
+plt.grid(True)
+plt.title('Erro Velocidade')
+plt.ylabel("Erro (rad/s)")
+plt.xlabel('Tempo(s)')
+
+plt.savefig('Resultados/kalman_fig_3.pdf')
+##########################################################################
+f4=plt.figure(4)
+f4.set_size_inches(11, 8)
+plt.subplot(411)
+plt.plot(tc[(N3-ciclos)*P+P:(N3+3*ciclos)*P+P],angulo_kal[(N3-ciclos)*P+P:(N3+3*ciclos)*P+P])
+plt.step(t[N3-ciclos:N3+3*ciclos],angulo_kal_est[N3-ciclos:N3+3*ciclos],'--')
+plt.grid(True)
+plt.title('Angulo')
+plt.ylabel("Angulo (rad)")
+plt.xticks([])
+plt.legend(['Real','Estimado'])
+
+plt.subplot(412)
+plt.plot(tc[(N3-ciclos)*P+P:(N3+3*ciclos)*P+P],x[3,(N3-ciclos)*P+P:(N3+3*ciclos)*P+P])
+plt.step(t[N3-ciclos:N3+3*ciclos],x_pos[3,N3-ciclos:N3+3*ciclos],'--')
+plt.grid(True)
+plt.title('Velocidade')
+plt.ylabel("Velocidade (rad/s)")
+plt.xticks([])
+plt.legend(['Real','Estimado'])
+
+plt.subplot(413)
+plt.plot(tc[(N3-ciclos)*P+P:(N3+3*ciclos)*P+P],x[0,(N3-ciclos)*P+P:(N3+3*ciclos)*P+P])
+plt.plot(tc[(N3-ciclos)*P+P:(N3+3*ciclos)*P+P],x[1,(N3-ciclos)*P+P:(N3+3*ciclos)*P+P])
+plt.plot(tc[(N3-ciclos)*P+P:(N3+3*ciclos)*P+P],x[2,(N3-ciclos)*P+P:(N3+3*ciclos)*P+P])
+plt.xticks([])
+plt.grid(True)
+plt.title('Correntes')
+plt.ylabel("Corrente (A)")
+plt.legend(['A','B','C'])
+
+plt.subplot(414)
+plt.step(t[N3-ciclos:N3+3*ciclos],x_pos[3,N3-ciclos:N3+3*ciclos] - ym_vel[N3-ciclos:N3+3*ciclos])
+plt.grid(True)
+plt.title('Erro Velocidade')
+plt.ylabel("Erro (rad/s)")
+plt.xlabel('Tempo(s)')
+
+plt.savefig('Resultados/kalman_fig_4.pdf')
+##########################################################################
+f5=plt.figure(5)
+f5.set_size_inches(11, 8)
+plt.subplot(411)
+plt.plot(tc[(N3+4*ciclos)*P+P:(N4-ciclos)*P+P],angulo_kal[(N3+4*ciclos)*P+P:(N4-ciclos)*P+P])
+plt.step(t[N3+4*ciclos:(N4-ciclos)],angulo_kal_est[N3+4*ciclos:(N4-ciclos)],'--')
+plt.grid(True)
+plt.title('Angulo')
+plt.ylabel("Angulo (rad)")
+plt.xticks([])
+plt.legend(['Real','Estimado'])
+
+plt.subplot(412)
+plt.title('Velocidade')
+plt.plot(tc[(N3+4*ciclos)*P+P:(N4-ciclos)*P+P],x[3,(N3+4*ciclos)*P+P:(N4-ciclos)*P+P])
+plt.step(t[N3+4*ciclos:(N4-ciclos)],x_pos[3,N3+4*ciclos:(N4-ciclos)],'--')
+plt.grid(True)
+plt.xticks([])
+plt.legend(['Real','Estimado'])
+plt.ylabel("Velocidade (rad/s)")
+
+plt.subplot(413)
+plt.plot(tc[(N3+4*ciclos)*P+P:(N4-ciclos)*P+P],x[0,(N3+4*ciclos)*P+P:(N4-ciclos)*P+P])
+plt.plot(tc[(N3+4*ciclos)*P+P:(N4-ciclos)*P+P],x[1,(N3+4*ciclos)*P+P:(N4-ciclos)*P+P])
+plt.plot(tc[(N3+4*ciclos)*P+P:(N4-ciclos)*P+P],x[2,(N3+4*ciclos)*P+P:(N4-ciclos)*P+P])
+plt.xticks([])
+plt.grid(True)
+plt.title('Correntes')
+plt.ylabel("Corrente (A)")
+plt.legend(['A','B','C'])
+
+plt.subplot(414)
+plt.step(t[N3+4*ciclos:(N4-ciclos)],x_pos[3,N3+4*ciclos:(N4-ciclos)] - ym_vel[N3+4*ciclos:(N4-ciclos)])
+plt.grid(True)
+plt.title('Erro Velocidade')
+plt.ylabel("Erro (rad/s)")
+plt.xlabel('Tempo(s)')
+
+plt.savefig('Resultados/kalman_fig_5.pdf')
+##########################################################################
+f6 = plt.figure(6)
+f6.set_size_inches(10, 8)
+plt.subplot(511)
+plt.plot(tc[0:N*P-P],angulo_kal[0:N*P-P])
+plt.step(t[0:N-1],angulo_kal_est[0:N-1])
+plt.grid(True)
+plt.title('Angulo')
+plt.xticks([])
+plt.legend(['Real','Estimado'])
+plt.ylabel("Angulo (rad)")
+
+plt.subplot(512)
+plt.step(t[0:N-1],ym_vel[0:N-1])
+plt.step(t[0:N-1],x_pos[3,0:N-1])
+plt.step(t[0:N-1],r[0:N-1])
+plt.grid(True)
+plt.xticks([])
+plt.title('Velocidade')
+plt.ylabel("Velocidade (rad/s)")
+plt.legend(['Real','Estimado','Ref'])
+
+plt.subplot(513)
+plt.step(t[0:N-1],x[0,0:N-1])
+plt.step(t[0:N-1],x[1,0:N-1])
+plt.step(t[0:N-1],x[2,0:N-1])
+plt.grid(True)
+plt.title('Correntes')
+plt.ylabel("Corrente (A)")
+plt.xticks([])
+plt.legend(['A','B','C'])
+
+aux = 0
+erro_ang = np.zeros((N),dtype=np.float64)
+for aux in range(0,len(angulo_kal_est)-1):
+    diff = (angulo_kal_est[aux] - angulo_kal_2[aux] + pi)%(2*pi) - pi
+    if diff < -180:
+        diff = diff+2*pi
+    erro_ang[aux] = diff
+
+plt.subplot(514)
+plt.step(t[0:N-1],x_pos[3,0:N-1] - ym_vel[0:N-1])
+plt.grid(True)
+plt.title('Erro Velocidade')
+plt.xticks([])
+plt.subplot(515)
+plt.step(t[0:N],erro_ang)
+plt.ylabel("Erro (rad/s)")
+plt.title('Erro Angulo')
+plt.grid(True)
+plt.ylabel("Erro (rad)")
+plt.xlabel('Tempo(s)')
+plt.savefig('Resultados/erro_total.pdf')\
+
+# f = plt.figure()
+# plt.plot(tc[0:N*P-P],angulo_kal[0:N*P-P])
+# plt.step(t[0:N-1],angulo_kal_est[0:N-1])
+# plt.grid(True)
+# plt.title('Angulo')
+# plt.legend(['Real','Estimado'])
+# plt.ylabel("Angulo (rad)")
+
+# f=plt.figure()
+# plt.step(t[0:N-1],ym_vel[0:N-1])
+# plt.step(t[0:N-1],x_pos[3,0:N-1])
+# plt.step(t[0:N-1],r[0:N-1])
+# plt.grid(True)
+# plt.title('Velocidade')
+# plt.ylabel("Velocidade (rad/s)")
+# plt.legend(['Real','Estimado','Ref'])
+
+# f=plt.figure()
+# plt.step(t[0:N-1],x[0,0:N-1])
+# plt.step(t[0:N-1],x[1,0:N-1])
+# plt.step(t[0:N-1],x[2,0:N-1])
+# plt.grid(True)
+# plt.title('Correntes')
+# plt.ylabel("Corrente (A)")
+# plt.legend(['A','B','C'])
+
+# f=plt.figure()
+# plt.step(t[0:N-1],x_pos[3,0:N-1] - ym_vel[0:N-1])
+# plt.grid(True)
+# plt.title('Erro Velocidade')
+
+# f=plt.figure()
+# plt.step(t[0:N],erro_ang)
+# plt.ylabel("Erro (rad/s)")
+# plt.title('Erro Angulo')
+# plt.grid(True)
+# plt.ylabel("Erro (rad)")
 
 plt.show()
