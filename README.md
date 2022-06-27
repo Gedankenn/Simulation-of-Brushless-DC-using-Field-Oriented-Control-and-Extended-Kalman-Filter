@@ -22,8 +22,7 @@ direct-torque-controlled brushless DC motors. IEEE Transactions on Industry Appl
 v. 42, n. 5, p. 1275–1283, 2006. ISSN 00939994. DOI: 10.1109/TIA.2006.880854
 
 # The mathematical model implemented as its follows:
-
-$
+$$
 \frac{d}{dt}
 \left(\begin{array}{c}
 I_a\\ 
@@ -32,9 +31,7 @@ I_c \\
 \omega_r \\
 \theta_e
 \end{array}\right)
-$=
-$
-\left(\begin{array}{ccccc} 
+= \left(\begin{array}{ccccc} 
 -\frac{R}{L-M} & 0 & 0 & -\frac{P_p\phi_mF_a(\theta_e)}{L-M} & 0\\
 0 & -\frac{R}{L-M} & 0 & -\frac{P_p\phi_mF_b(\theta_e)}{L-M} & 0\\
 0 & 0 & -\frac{R}{L-M} & -\frac{P_p\phi_mF_c(\theta_e)}{L-M} & 0\\
@@ -63,9 +60,9 @@ V_bn \\
 V_cn \\
 T_c
 \end{array}\right)
-$
+$$
 
-$
+$$
 \left(\begin{array}{c} 
 I_a \\
 I_b \\
@@ -76,8 +73,6 @@ I_c
 0 & 1 & 0 & 0 & 0\\
 0 & 0 & 1 & 0 & 0
 \end{array}\right)
-$
-$
 \left(\begin{array}{c} 
 I_a \\
 I_b \\
@@ -85,17 +80,17 @@ I_c \\
 \omega_r \\
 \theta_e
 \end{array}\right)
-$
+$$
 
-$
+$$
 \dot{x} = f(x,t) + v(t)
-$
+$$
 
-$
+$$
 dF(x,t) = \frac{\partial f(x,t)}{\partial x}
-$
+$$
 
-$
+$$
 dF(x,t) =
 \left(\begin{array}{ccccc} 
 -\frac{R}{L-M} & 0 & 0 & -\frac{P_p\phi_mF_a(\theta_e)}{L-M} & -\frac{P_p\phi_m\omega_r}{L-M}\frac{dF_a(theta_e)}{d\theta_e}\\
@@ -105,31 +100,36 @@ dF(x,t) =
 \frac{P_p\phi_m}{J}(\frac{dF_a(\theta_e)}{d\theta_e}i_a + \frac{dF_b(\theta_e)}{d\theta_e}i_b + \frac{dF_c(\theta_e)}{d\theta_e}i_c) \\
 0 & 0 & 0 & P_p & 0
 \end{array}\right)
-$
+$$
 
 ## The discrete equation for F is:
-$F_d = \phi = I + F.Ts$
+$$
+F_d = \phi = I + F.Ts\\
+dF_d = \phi = I + dF.Ts
+$$
 
-$dF_d = \phi = I + dF.Ts$
-
-$\hat{x}_{k|k-1} = \hat{x}_{k-1|k-1} + f(\hat{x}_{k-1|k-1},u_{k-1})Tc$
+$$
+\hat{x}_{k|k+1} = \hat{x}_{k|k-1} + f(\hat{x}_{k|k-1},u_{k-1})Tc
+$$
 
 ## For The Extended Kalman Filter the following equations are used:
 ### Estimation
-$
-\hat{x}_{k|k+1} = F_d\hat{x}_{k|k} + B_du_{k}\\
-P_{k|k+1}=dF_dP_{k|k}dF_d^T_s+Q
-$
+$$\hat{x}_{k|k+1} = F_{d}\hat{x}_{k|k} + B_{d}u_{k}$$
+
+$$P_{k|k+1}=dF_{d}P_{k|k}dF_{d}^T_s + Q$$
 
 ### Prediction
-$
-\hat{y}_{k|k-1} = C\hat{x}_{k|k-1}\\
-\tilde{y}_k = y_k - \tilde{y}_{k|k-1}\\
-S_k = CP_{k|k-1}C^T + R\\
-K_k = P_{k|k-1}C^TS_k^-1\\
-\hat{x}_{k|k} = x_{k|k-1} + K_k\tilde{y}_k\\
-P_{k|k} = (I -K_kC)P_{k|k-1}
-$
+$$\hat{y}_{k|k-1} = C\hat{x}_{k|k-1}$$
+
+$$\tilde{y}_k = y_k - \tilde{y}_{k|k-1}$$
+
+$$S_k = CP_{k|k-1}C^T + R$$
+
+$$K_k = P_{k|k-1}C^TS_k^-1$$
+
+$$\hat{x}_{k|k} = x_{k|k-1} + K_k\tilde{y}_k$$
+
+$$P_{k|k} = (I -K_kC)P_{k|k-1}$$
 
 ### Matrizes de covariancia
 
