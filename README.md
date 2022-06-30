@@ -1,7 +1,5 @@
 # Simulation-of-Brushless-DC-using-Field-Oriented-Control-and-Extended-Kalman-Filter
-Simulation of a brushless dc motor using FOC method and Extended Kalman Filter as estimation method for the velocity of the rotor.
- This code is a python simulation of a BLDC motor using Extended Kalman Filter for speed and position estimation.
-This code as based on the works of:
+Simulation of a brushless dc motor using FOC method and Extended Kalman Filter as estimation method for the velocity of the rotor based on the works of:
 * XIA, C. L. Permanent Magnet Brushless DC Motor Drives and Controls. [S. l.: s. n.], 2012.
 ISBN 9781118188330. DOI: 10.1002/9781118188347.
 * XIA, K. et al. Model predictive control method of torque ripple reduction for BLDC Motor.
@@ -22,6 +20,11 @@ direct-torque-controlled brushless DC motors. IEEE Transactions on Industry Appl
 v. 42, n. 5, p. 1275–1283, 2006. ISSN 00939994. DOI: 10.1109/TIA.2006.880854
 
 # The mathematical model implemented as its follows:
+$$
+\frac{d}{dt}x = Fx+Gu\\
+y=Hx
+$$
+
 $$
 \frac{d}{dt}
 \left(\begin{array}{c}
@@ -68,6 +71,7 @@ I_a \\
 I_b \\
 I_c
 \end{array}\right)
+=
 \left(\begin{array}{ccccc} 
 1 & 0 & 0 & 0 & 0\\
 0 & 1 & 0 & 0 & 0\\
@@ -104,6 +108,35 @@ $$
 
 ## The discrete equation for F is:
 $$
-F_d = \phi = I + F.Ts\\
-dF_d = \phi = I + dF.Ts
+dF_d = I + dF.Ts + \frac{dF^2}{2!}Ts
 $$
+
+## The Extended Kalman Equations
+$$
+\hat{x}_{k|k+1} = F\hat{x}_{k|k} + Gu_k + \omega_k
+$$
+where:
+* $\hat{x}_{k|k+1}$ is the sistem state vector
+* F is the state transition matrix
+* G is the control matrix
+* $u_k$ is control vector
+* $\omega_k$ is the process noise
+
+The covariation matrix for the k|k+1 state is calculated as:
+$$
+P_{k|k+1} =dFP_{k|k}dF^T+Q
+$$
+where:
+* $Q$ is the noise process covariance matrix
+
+$$\hat{y}_{k|k} = H\hat{x}_{k|k} + v_n$$
+where:
+* $\hat{y}{k|k} is the measurement vector from the model
+* $H$ is the observation matrix
+* $v_n$ is the measurement noise
+
+$$\tilde{y}_k = y_k - \hat{y}_{k|k}$$
+$$ K_k = P_{k|k-1}H^T(HP_{k|k-1}H^T+R_n)^{-1}$$
+$$ \hat{x}_{k|k} = \hat{x}_{k|k-1}+K_k\tilde{y}_k$$
+$$ P_{k|k} = (I -K_kH)P_{k|k-1}$$
+

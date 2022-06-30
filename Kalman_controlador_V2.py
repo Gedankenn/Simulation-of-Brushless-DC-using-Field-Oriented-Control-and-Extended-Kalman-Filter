@@ -150,7 +150,7 @@ Ts        = 1/FS
 Tc        = Ts/P
 
 ciclos    = int(FS/10)
-alin      = int(FS/4)
+alin      = int(FS/3.5)
 alto      = 100
 alto2     = 150
 N         = FS*4
