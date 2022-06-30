@@ -71,8 +71,7 @@ I_a \\
 I_b \\
 I_c
 \end{array}\right)
-=
-\left(\begin{array}{ccccc} 
+= \left(\begin{array}{ccccc} 
 1 & 0 & 0 & 0 & 0\\
 0 & 1 & 0 & 0 & 0\\
 0 & 0 & 1 & 0 & 0
