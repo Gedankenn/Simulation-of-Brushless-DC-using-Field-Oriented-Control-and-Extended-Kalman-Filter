@@ -90,8 +90,25 @@ $$
 $$
 
 $$
-dF(x,t) = \frac{\partial f(x,t)}{\partial x}
+dF(x,t) = \left(\begin{array}{ccccc}
+\frac{\partial f_1}{\partial i_a} \frac{\partial f_1}{\partial i_b} \frac{\partial f_1}{\partial i_c} \frac{\partial f_1}{\partial \omega_r} \frac{\partial f_1}{\partial \theta_e} \\
+\frac{\partial f_2}{\partial i_a} \frac{\partial f_2}{\partial i_b} \frac{\partial f_2}{\partial i_c} \frac{\partial f_2}{\partial \omega_r} \frac{\partial f_2}{\partial \theta_e} \\
+\frac{\partial f_3}{\partial i_a} \frac{\partial f_3}{\partial i_b} \frac{\partial f_3}{\partial i_c} \frac{\partial f_3}{\partial \omega_r} \frac{\partial f_3}{\partial \theta_e} \\
+\frac{\partial f_4}{\partial i_a} \frac{\partial f_4}{\partial i_b} \frac{\partial f_4}{\partial i_c} \frac{\partial f_4}{\partial \omega_r} \frac{\partial f_4}{\partial \theta_e} \\
+\frac{\partial f_5}{\partial i_a} \frac{\partial f_5}{\partial i_b} \frac{\partial f_5}{\partial i_c} \frac{\partial f_5}{\partial \omega_r} \frac{\partial f_5}{\partial \theta_e}
+\end{array}\right)
 $$
+
+$$\left(\begin{array}{ccccc}
+f_1 &= \frac{1}{L_M}V_{An} -\frac{R}{L_M}i_a -\frac{P_p\phi_mf_A(\theta_e)}{L_M}\omega_m \\
+f_2 &= \frac{1}{L_M}V_{An} -\frac{R}{L_M}i_b -\frac{P_p\phi_mf_B(\theta_e)}{L_M}\omega_m \\
+f_3 &= \frac{1}{L_M}V_{An} -\frac{R}{L_M}i_c -\frac{P_p\phi_mf_C(\theta_e)}{L_M}\omega_m \\
+f_4 &= \frac{P_p\phi_m}{J}(i_af_A(\theta_e)+i_bf_B(\theta_e)+i_cf_C(\theta_e))-\frac{1}{J}(B_v\omega_m+T_c) \\
+f_5 &= P_p\omega_m
+\end{array}\right)
+$$
+
+Applying the local linearization whe obtain the model we will use for the Extended Kalman Filter.
 
 $$
 dF(x,t) =
