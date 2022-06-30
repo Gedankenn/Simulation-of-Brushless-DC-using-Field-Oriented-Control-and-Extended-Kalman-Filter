@@ -112,9 +112,11 @@ dF_d = I + dF.Ts + \frac{dF^2}{2!}Ts
 $$
 
 ## The Extended Kalman Equations
+
 $$
 \hat{x}_{k|k+1} = F\hat{x}_{k|k} + Gu_k + \omega_k
 $$
+
 where:
 * $\hat{x}_{k|k+1}$ is the sistem state vector
 * F is the state transition matrix
@@ -123,15 +125,20 @@ where:
 * $\omega_k$ is the process noise
 
 The covariation matrix for the k|k+1 state is calculated as:
+
 $$
 P_{k|k+1} =dFP_{k|k}dF^T+Q
 $$
+
 where:
 * $Q$ is the noise process covariance matrix
 
-$$\hat{y}_{k|k} = H\hat{x}_{k|k} + v_n$$
+$$
+\hat{y}_{k|k} = H\hat{x}_{k|k} + v_n
+$$
+
 where:
-* $\hat{y}{k|k} is the measurement vector from the model
+* $\hat{y}{k|k}$ is the measurement vector from the model
 * $H$ is the observation matrix
 * $v_n$ is the measurement noise
 
